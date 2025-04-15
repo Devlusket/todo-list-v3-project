@@ -1,7 +1,18 @@
 [
-    {
-      "value": "Estudar JavaScript",
-      "checked": false
-    }
-  ]
-  
+  {
+    "value": "por favor Deus",
+    "checked": false
+  },
+  {
+    "value": "FUNCIONOU PORRA",
+    "checked": false
+  },
+  {
+    "value": "que felicidade",
+    "checked": false
+  },
+  {
+    "value": "AMÉM",
+    "checked": true
+  }
+]
