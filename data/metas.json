@@ -14,5 +14,9 @@
   {
     "value": "AMÉM",
     "checked": false
+  },
+  {
+    "value": "server on?",
+    "checked": false
   }
 ]
