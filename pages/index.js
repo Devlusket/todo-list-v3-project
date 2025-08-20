@@ -177,12 +177,10 @@
 
 
 
-
-
 import { useEffect, useState } from 'react';
 
 export default function Home() {
-  const [metas, setMetas] = useState([]);
+  const [metas, setMetas] = useState([]); // continua como array
   const [novaMeta, setNovaMeta] = useState('');
   const [mensagem, setMensagem] = useState('');
   const [tipoMensagem, setTipoMensagem] = useState('success'); // 'success' ou 'error'
@@ -202,9 +200,15 @@ export default function Home() {
   }, []);
 
   const fetchMetas = async () => {
-    const res = await fetch('/api/metas');
-    const data = await res.json();
-    setMetas(data);
+    try {
+      const res = await fetch('/api/metas');
+      const data = await res.json();
+      // Garantir que sempre seja array
+      setMetas(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Erro ao buscar metas:', err);
+      setMetas([]);
+    }
   };
 
   const adicionarMeta = async () => {
@@ -214,27 +218,31 @@ export default function Home() {
       return;
     }
 
-    // Enviar nova meta para a API
-    const res = await fetch('/api/metas', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ value: novaMeta }),
-    });
+    try {
+      const res = await fetch('/api/metas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: novaMeta }),
+      });
 
-    if (!res.ok) {
-      const errorData = await res.json();
-      setMensagem(`Erro: ${errorData.error || 'Erro ao adicionar meta'}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        setMensagem(`Erro: ${errorData.error || 'Erro ao adicionar meta'}`);
+        setTipoMensagem('error');
+        return;
+      }
+
+      setNovaMeta('');
+      setMensagem('Meta adicionada com sucesso!');
+      setTipoMensagem('success');
+      fetchMetas();
+    } catch (err) {
+      console.error(err);
+      setMensagem('Erro ao adicionar meta');
       setTipoMensagem('error');
-      return;
     }
-
-    setNovaMeta('');
-    setMensagem('Meta adicionada com sucesso!');
-    setTipoMensagem('success');
-    fetchMetas();
   };
 
-  // Marca/desmarca meta usando o id
   const toggleCheck = (id) => {
     const atualizadas = metas.map(meta =>
       meta.id === id ? { ...meta, checked: !meta.checked } : meta
@@ -244,15 +252,21 @@ export default function Home() {
   };
 
   const atualizarMetas = async (metasAtualizadas) => {
-    const res = await fetch('/api/metas', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(metasAtualizadas),
-    });
+    try {
+      const res = await fetch('/api/metas', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(metasAtualizadas),
+      });
 
-    if (!res.ok) {
-      const errorData = await res.json();
-      setMensagem(`Erro: ${errorData.error || 'Erro ao atualizar metas'}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        setMensagem(`Erro: ${errorData.error || 'Erro ao atualizar metas'}`);
+        setTipoMensagem('error');
+      }
+    } catch (err) {
+      console.error(err);
+      setMensagem('Erro ao atualizar metas');
       setTipoMensagem('error');
     }
   };
@@ -266,23 +280,29 @@ export default function Home() {
       return;
     }
 
-    const res = await fetch('/api/metas', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ idsToDelete: idsParaDeletar }),
-    });
+    try {
+      const res = await fetch('/api/metas', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idsToDelete: idsParaDeletar }),
+      });
 
-    if (!res.ok) {
-      const errorData = await res.json();
-      setMensagem(`Erro: ${errorData.error || 'Erro ao deletar metas'}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        setMensagem(`Erro: ${errorData.error || 'Erro ao deletar metas'}`);
+        setTipoMensagem('error');
+        return;
+      }
+
+      const novasMetas = metas.filter(meta => !meta.checked);
+      setMetas(novasMetas);
+      setMensagem('Metas deletadas com sucesso!');
+      setTipoMensagem('success');
+    } catch (err) {
+      console.error(err);
+      setMensagem('Erro ao deletar metas');
       setTipoMensagem('error');
-      return;
     }
-
-    const novasMetas = metas.filter(meta => !meta.checked);
-    setMetas(novasMetas);
-    setMensagem('Metas deletadas com sucesso!');
-    setTipoMensagem('success');
   };
 
   return (
@@ -354,4 +374,5 @@ export default function Home() {
     </div>
   );
 }
+
 
