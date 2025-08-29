@@ -215,7 +215,7 @@
 //   }
 // }
 
-
+// Usando Prisma com banco de dados PostgreSQL
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
